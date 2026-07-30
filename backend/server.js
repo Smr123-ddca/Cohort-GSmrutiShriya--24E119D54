@@ -51,7 +51,7 @@ app.post('/users' , async (req,res) => {
     try{
         const createUserQuery = `
         INSERT INTO users (fullname , reg_id , email , password , age) VALUES ($1 , $2 , $3 , $4 , $5)
-        RETURNING id,username,reg_id,email,password,age;
+        RETURNING id,fullname,reg_id,email,password,age;
         `
         const result = await db.query(createUserQuery , [fullname , reg_id , email , password , age]);
 
@@ -69,31 +69,16 @@ app.post('/users' , async (req,res) => {
     }
 })
 
-// app.delete('/users', async (req, res) => {
-//     const { email } = req.body;
-//     try {
-//         const deleteUserQuery = `
-//         DELETE FROM users WHERE email = $1
-//         RETURNING id, username, email;
-//         `
-//         const result = await db.query(deleteUserQuery, [email]);
-
-//         res.status(200).json({
-//             status: "Success",
-//             message: "User deleted successfully",
-//             data: result.rows[0]
-//         })
-//     } catch (error) {
-//         return res.status(500).json({
-//             status: "Failed",
-//             message: "Something went wrong",
-//             error: error
-//         })
-//     }
-// })
-
 app.post('/login' , async (req,res) => {
     const {email , password} = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({
+            status: "Failed",
+            message: "Email and password are required"
+        });
+    }
+
     try{
         const getUserDetails = `
         SELECT id , fullname , reg_id , email , password , age
@@ -101,6 +86,13 @@ app.post('/login' , async (req,res) => {
         WHERE email = $1 AND password = $2 ;`
 
         const result = await db.query(getUserDetails, [email , password])
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+            status: "Failed",
+            message: "Invalid email or password"
+            });
+        }
 
         res.status(202).json({
             status: "Success",
@@ -115,6 +107,71 @@ app.post('/login' , async (req,res) => {
         })
     }
 })
+
+app.patch('/profile' , async (req , res) => {
+    const {reg_id , email , password , age } = req.body;
+
+    // if (!loggedIn){
+    //     return res.status(401).json({
+    //         status: "Failed",
+    //         message: "Logging in is required"
+    //     })
+    // }
+
+    try{
+        const updateUserDetails = `
+        UPDATE users
+        SET email =$2 , password = $3 , age = $4
+        WHERE reg_id = $1 
+        RETURNING id, fullname, reg_id, email, age;`
+
+        const result = await db.query(updateUserDetails, [reg_id , email , password , age])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "User not found"
+            });
+        }
+
+        res.status(202).json({
+            status: "Success",
+            message: "Information retrieved successfully",
+            data: result.rows[0]
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: "Failed",
+            message: "Something went wrong",
+            error: error
+        })
+    }
+})
+
+app.delete('/users', async (req, res) => {
+    const { reg_id , email , password , age } = req.body;
+    try {
+        const deleteUserQuery = `
+        DELETE FROM users WHERE email = $1
+        RETURNING id, username, email;
+        `
+        const result = await db.query(deleteUserQuery, [email]);
+
+        res.status(200).json({
+            status: "Success",
+            message: "User deleted successfully",
+            data: result.rows[0]
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: "Failed",
+            message: "Something went wrong",
+            error: error
+        })
+    }
+})
+
+
 
 app.listen(PORT , (err)=>{
     if(err) console.log(err);
