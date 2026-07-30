@@ -81,7 +81,7 @@ app.post('/login' , async (req,res) => {
 
     try{
         const getUserDetails = `
-        SELECT id , fullname , reg_id , email , password , age
+        SELECT *
         FROM users
         WHERE email = $1 AND password = $2 ;`
 
@@ -111,12 +111,12 @@ app.post('/login' , async (req,res) => {
 app.patch('/profile' , async (req , res) => {
     const {reg_id , email , password , age } = req.body;
 
-    // if (!loggedIn){
-    //     return res.status(401).json({
-    //         status: "Failed",
-    //         message: "Logging in is required"
-    //     })
-    // }
+    if (!reg_id) {
+        return res.status(400).json({
+            status: "Failed",
+            message: "Registration ID is required"
+        });
+    }
 
     try{
         const updateUserDetails = `
@@ -149,13 +149,20 @@ app.patch('/profile' , async (req , res) => {
 })
 
 app.delete('/users', async (req, res) => {
-    const { reg_id , email , password , age } = req.body;
+    const { reg_id  } = req.body;
     try {
         const deleteUserQuery = `
-        DELETE FROM users WHERE email = $1
-        RETURNING id, username, email;
+        DELETE FROM users WHERE reg_id = $1
+        RETURNING id, fullname, email;
         `
         const result = await db.query(deleteUserQuery, [email]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "User not found"
+            });
+        }
 
         res.status(200).json({
             status: "Success",
