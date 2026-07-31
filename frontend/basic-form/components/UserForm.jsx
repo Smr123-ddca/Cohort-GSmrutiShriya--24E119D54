@@ -13,12 +13,31 @@ function Form() {
     setFormData({...formData,[e.target.name]: e.target.value,});
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
-    alert("Form submitted!");
-  };
+    try {
+    const response = await fetch("http://localhost:3000/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      alert(result.message);
+      return;
+    }
+
+    alert("User created successfully!");
+  } catch (error) {
+    console.error(error);
+    alert("Could not reach the server");
+  }
+};
+    
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -77,6 +96,7 @@ function Form() {
       <button type="submit">Submit</button>
     </form>
   );
-}
+
+};
 
 export default Form;

@@ -1,5 +1,8 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
+
+app.use(cors())
 require('dotenv').config()
 const {initDatabase} = require('./controllers/initDb.js');
 const db = require('./models/connection.js');
@@ -148,14 +151,14 @@ app.patch('/profile' , async (req , res) => {
     }
 })
 
-app.delete('/users', async (req, res) => {
+app.delete('/profile', async (req, res) => {
     const { reg_id  } = req.body;
     try {
         const deleteUserQuery = `
         DELETE FROM users WHERE reg_id = $1
-        RETURNING id, fullname, email;
+        RETURNING fullname , reg_id , email , password , age;
         `
-        const result = await db.query(deleteUserQuery, [email]);
+        const result = await db.query(deleteUserQuery, [reg_id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({
