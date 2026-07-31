@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+
 
 function Form() {
   const [formData, setFormData] = useState({
@@ -8,6 +11,10 @@ function Form() {
     password: "",
     age: "",
   });
+
+  const navigate = useNavigate();
+  const { setUser } = useUser();
+
 
   const handleChange = (e) => {
     setFormData({...formData,[e.target.name]: e.target.value,});
@@ -29,8 +36,11 @@ function Form() {
       alert(result.message);
       return;
     }
-
+    
     alert("Loggedin successfully!");
+
+    setUser(result.data);
+    navigate("/profile");
   } catch (error) {
     console.error(error);
     alert("Could not reach the server");

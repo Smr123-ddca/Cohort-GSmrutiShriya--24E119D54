@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useUser } from "../context/UserContext";
+
 
 function Form() {
   const [formData, setFormData] = useState({
@@ -8,6 +10,8 @@ function Form() {
     password: "",
     age: "",
   });
+
+  const { user } = useUser();
 
   const handleChange = (e) => {
     setFormData({...formData,[e.target.name]: e.target.value,});
