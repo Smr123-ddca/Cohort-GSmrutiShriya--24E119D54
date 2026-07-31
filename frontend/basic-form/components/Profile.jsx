@@ -45,7 +45,7 @@ function Form() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Registration Form</h2>
+      <h2>Change your Information</h2>
 
       {/* <label>Full Name:</label>
       <input
