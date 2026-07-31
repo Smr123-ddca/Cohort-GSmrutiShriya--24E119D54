@@ -1,0 +1,31 @@
+## Project Overview
+
+### Project Objective
+
+This project implements a **User Management System** using the MERN-adjacent stack (Node.js, Express.js, PostgreSQL, and React) to demonstrate core backend development fundamentals — building REST APIs, connecting to a relational database, and communicating with a frontend client. The system allows users to register, log in, view their profile, update their details, and delete their account, with all data persisted in a PostgreSQL database.
+
+### Technologies Used
+
+| Layer              | Technology               |
+| ------------------ | ------------------------ |
+| Backend Runtime    | Node.js                  |
+| Backend Framework  | Express.js               |
+| Database           | PostgreSQL               |
+| DB Driver          | `pg` (node-postgres)     |
+| Frontend           | React (Vite)             |
+| Routing            | React Router DOM         |
+| State Management   | React Context API        |
+| API Testing        | Postman / Thunder Client |
+| Environment Config | dotenv                   |
+
+### Core Functionality
+
+- **User Registration** — collects full name, registration number, email, password, and age; validates required fields and inserts a new record into the `users` table.
+- **User Login** — verifies email and password against stored records and returns the matched user's details on success.
+- **Profile Management** — allows a logged-in user to update (`PATCH`) or delete (`DELETE`) their own account using their registration ID.
+- **User Listing** — fetches all registered users as an array of user objects via `GET /users`.
+- **Welcome Route** — confirms the API is running via `GET /`.
+
+### Architecture Summary
+
+The frontend (React) communicates with the backend (Express) over REST APIs using `fetch`, with CORS enabled to allow cross-origin requests during local development. The backend connects to PostgreSQL through a connection pool (`pg.Pool`) and enforces data integrity at the database level — unique constraints on `email` and `registration_no`, a `CHECK` constraint on age (16–65), and a minimum password length — so invalid data is rejected before it can be persisted.
